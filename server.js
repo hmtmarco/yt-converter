@@ -13,7 +13,18 @@ const TMP  = path.join(__dirname, 'tmp');
 
 if (!fs.existsSync(TMP)) fs.mkdirSync(TMP);
 
-app.use(helmet());
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", "'unsafe-inline'"],
+      styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
+      fontSrc: ["'self'", 'https://fonts.gstatic.com'],
+      imgSrc: ["'self'", 'data:'],
+      connectSrc: ["'self'"]
+    }
+  }
+}));
 
 app.use(cors({
   origin: ['https://ytsnap.up.railway.app', 'https://yt-converter-production-2ca3.up.railway.app']
