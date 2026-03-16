@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>YT Converter</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:system-ui,sans-serif;background:#0f0f0f;color:#f1f1f1;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
+    .card{background:#1a1a1a;border:1px solid #2a2a2a;border-radius:20px;padding:40px 36px;width:100%;max-width:500px}
+    h1{font-size:26px;font-weight:700;background:linear-gradient(135deg,#ff0000,#ff6b6b);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:6px}
+    .sub{color:#666;font-size:14px;margin-bottom:30px}
+    label{display:block;font-size:13px;color:#888;margin-bottom:6px}
+    input{width:100%;padding:13px 15px;background:#0f0f0f;border:1px solid #2e2e2e;border-radius:12px;color:#f1f1f1;font-size:15px;margin-bottom:18px;outline:none;transition:border-color .2s}
+    input:focus{border-color:#ff4444}
+    .formats{display:flex;gap:10px;margin-bottom:24px}
+    .fmt{flex:1;padding:11px;border:1px solid #2e2e2e;border-radius:12px;background:#0f0f0f;color:#777;font-size:14px;font-weight:600;cursor:pointer;transition:all .2s}
+    .fmt:hover{border-color:#444;color:#f1f1f1}
+    .fmt.on{border-color:#ff4444;background:rgba(255,68,68,.08);color:#ff6b6b}
+    #btn{width:100%;padding:15px;background:#e60000;border:none;border-radius:12px;color:#fff;font-size:16px;font-weight:700;cursor:pointer;transition:opacity .2s}
+    #btn:hover:not(:disabled){opacity:.85}
+    #btn:disabled{opacity:.45;cursor:not-allowed}
+    .bar{height:4px;background:#222;border-radius:4px;margin-top:18px;display:none}
+    .fill{height:100%;background:#ff4444;border-radius:4px;width:0;transition:width .4s}
+    .msg{margin-top:18px;padding:13px 16px;border-radius:12px;font-size:14px;line-height:1.5;display:none}
+    .msg.info{background:rgba(59,130,246,.12);color:#93c5fd;display:block}
+    .msg.ok{background:rgba(34,197,94,.12);color:#86efac;display:block}
+    .msg.err{background:rgba(239,68,68,.12);color:#fca5a5;display:block}
+    a.dl{display:inline-block;margin-top:10px;padding:10px 22px;background:#22c55e;color:#fff;border-radius:10px;text-decoration:none;font-weight:700;font-size:14px}
+  </style>
+</head>
+<body>
+<div class="card">
+  <h1>YT Converter</h1>
+  <p class="sub">Convierte videos de YouTube a MP3, WAV o MP4</p>
+  <label>URL de YouTube</label>
+  <input id="url" type="text" placeholder="https://www.youtube.com/watch?v=..."/>
+  <label>Formato</label>
+  <div class="formats">
+    <button class="fmt on" data-f="mp3">🎵 MP3</button>
+    <button class="fmt"    data-f="wav">🎧 WAV</button>
+    <button class="fmt"    data-f="mp4">🎬 MP4</button>
+  </div>
+  <button id="btn">Convertir</button>
+  <div class="bar" id="bar"><div class="fill" id="fill"></div></div>
+  <div class="msg" id="msg"></div>
+</div>
+<script>
+  let fmt = 'mp3';
+  document.querySelectorAll('.fmt').forEach(b => {
+    b.onclick = () => {
+      document.querySelectorAll('.fmt').forEach(x => x.classList.remove('on'));
+      b.classList.add('on'); fmt = b.dataset.f;
+    };
+  });
+  function setMsg(html, type) {
+    const el = document.getElementById('msg');
+    el.innerHTML = html; el.className = 'msg ' + type;
+  }
+  let timer;
+  function startBar() {
+    document.getElementById('bar').style.display = 'block';
+    let p = 0;
+    timer = setInterval(() => {
+      p = p < 88 ? p + Math.random() * 3.5 : p;
+      document.getElementById('fill').style.width = p + '%';
+    }, 500);
+  }
+  function stopBar() {
+    clearInterval(timer);
+    document.getElementById('fill').style.width = '100%';
+    setTimeout(() => { document.getElementById('bar').style.display='none'; document.getElementById('fill').style.width='0'; }, 600);
+  }
+  document.getElementById('btn').onclick = async () => {
+    const url = document.getElementById('url').value.trim();
+    if (!url) return setMsg('Introduce una URL de YouTube', 'err');
+    const btn = document.getElementById('btn');
+    btn.disabled = true;
+    setMsg('Procesando... puede tardar hasta 1 minuto', 'info');
+    startBar();
+    try {
+      const res  = await fetch('/convert', {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ url, format: fmt })
+      });
+      const data = await res.json();
+      stopBar();
+      if (!res.ok) { setMsg('Error: ' + (data.error || 'desconocido'), 'err'); }
+      else { setMsg(`Conversion completada! <a class="dl" href="/download/${data.id}/${data.format}">Descargar .${data.format}</a>`, 'ok'); }
+    } catch { stopBar(); setMsg('No se pudo conectar con el servidor', 'err'); }
+    finally { btn.disabled = false; }
+  };
+</script>
+</body>
+</html>
