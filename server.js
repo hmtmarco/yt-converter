@@ -16,7 +16,7 @@ if (!fs.existsSync(TMP)) fs.mkdirSync(TMP);
 app.use(helmet());
 
 app.use(cors({
-  origin: 'https://yt-converter-production-2ca3.up.railway.app'
+  origin: ['https://ytsnap.up.railway.app', 'https://yt-converter-production-2ca3.up.railway.app']
 }));
 
 app.use(express.json({ limit: '10kb' }));
