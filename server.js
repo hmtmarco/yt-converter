@@ -18,7 +18,7 @@ app.use(helmet({
     directives: {
       defaultSrc: ["'self'"],
       scriptSrc:  ["'self'", "'unsafe-inline'", "'unsafe-hashes'"],
-      scriptSrcAttr: ["'unsafe-inline'"], // <-- Corrección aplicada aquí
+      scriptSrcAttr: ["'unsafe-inline'"], // <-- Corrección CSP
       styleSrc:   ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
       fontSrc:    ["'self'", 'https://fonts.gstatic.com'],
       imgSrc:     ["'self'", 'data:'],
@@ -64,6 +64,19 @@ function isValidYoutubeUrl(url) {
   } catch { return false; }
 }
 
+// Limpiar la URL y dejar solo la ID del video para evitar problemas con parámetros extra
+function cleanYoutubeUrl(rawUrl) {
+  try {
+    const u = new URL(rawUrl);
+    if (u.hostname === 'youtu.be') return `https://www.youtube.com/watch?v=${u.pathname.slice(1)}`;
+    const videoId = u.searchParams.get('v');
+    if (videoId) return `https://www.youtube.com/watch?v=${videoId}`;
+    return rawUrl;
+  } catch {
+    return rawUrl;
+  }
+}
+
 const AUDIO_FORMATS = ['mp3', 'wav', 'flac', 'aac', 'ogg'];
 const VIDEO_FORMATS = ['mp4'];
 const ALL_FORMATS   = [...AUDIO_FORMATS, ...VIDEO_FORMATS];
@@ -78,8 +91,9 @@ app.post('/convert', (req, res) => {
     return res.status(400).json({ error: 'Formato no soportado' });
   }
 
-  const id      = uuidv4();
-  const outFile = path.join(TMP, `${id}.${format}`);
+  const cleanUrl = cleanYoutubeUrl(url);
+  const id       = uuidv4();
+  const outFile  = path.join(TMP, `${id}.${format}`);
 
   let args;
 
@@ -92,16 +106,16 @@ app.post('/convert', (req, res) => {
       '--embed-thumbnail',
       '--add-metadata',
       '-o', outFile,
-      url
+      cleanUrl
     ];
   } else {
-    // Calidad de audio óptima según formato
+    // Calidad de audio: sin parámetro de calidad para formatos sin pérdida (WAV, FLAC)
     const qualityMap = {
-      mp3:  ['--audio-quality', '0'],           // 320kbps VBR
-      wav:  ['--audio-quality', '0'],            // lossless
-      flac: ['--audio-quality', '0'],            // lossless
-      aac:  ['--audio-quality', '0'],            // mejor calidad AAC
-      ogg:  ['--audio-quality', '0'],            // mejor calidad OGG
+      mp3:  ['--audio-quality', '0'],
+      wav:  [], // <-- Corrección para formatos Lossless
+      flac: [], // <-- Corrección para formatos Lossless
+      aac:  ['--audio-quality', '0'],
+      ogg:  ['--audio-quality', '0'],
     };
 
     args = [
@@ -110,11 +124,11 @@ app.post('/convert', (req, res) => {
       ...qualityMap[format],
       '--match-filter', 'duration < 1200',
       '--no-playlist',
-      '--embed-thumbnail',       // portada del video como carátula
-      '--add-metadata',          // título, artista, álbum desde YouTube
+      '--embed-thumbnail',
+      '--add-metadata',
       '--parse-metadata', 'title:%(title)s',
       '-o', outFile,
-      url
+      cleanUrl
     ];
   }
 
