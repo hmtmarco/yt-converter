@@ -4,17 +4,17 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <title>YTSnap — Convertidor de YouTube a MP3, MP4 y WAV gratis</title>
-  <meta name="description" content="Convierte videos de YouTube a MP3, MP4 y WAV gratis. Rápido, sin registro y sin límites. El mejor convertidor de YouTube online."/>
+  <meta name="description" content="Convierte videos de YouTube a MP3, WAV, FLAC, AAC, OGG y MP4 gratis. Rápido, sin registro y sin límites. El mejor convertidor de YouTube online."/>
   <meta name="keywords" content="convertidor youtube mp3, youtube to mp3, descargar youtube, youtube mp4, convertir youtube gratis, ytsnap"/>
   <meta name="robots" content="index, follow"/>
   <link rel="canonical" href="https://ytsnap.up.railway.app"/>
   <meta property="og:title" content="YTSnap — Convertidor de YouTube gratis"/>
-  <meta property="og:description" content="Convierte cualquier video de YouTube a MP3, MP4 o WAV en segundos. Sin registro, sin límites."/>
+  <meta property="og:description" content="Convierte cualquier video de YouTube a MP3, WAV, FLAC, AAC, OGG o MP4 en segundos."/>
   <meta property="og:url" content="https://ytsnap.up.railway.app"/>
   <meta property="og:type" content="website"/>
   <meta name="twitter:card" content="summary"/>
   <meta name="twitter:title" content="YTSnap — Convertidor de YouTube gratis"/>
-  <meta name="twitter:description" content="Convierte YouTube a MP3, MP4 y WAV gratis y sin registro."/>
+  <meta name="twitter:description" content="Convierte YouTube a MP3, WAV, FLAC, AAC, OGG y MP4 gratis."/>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Serif+Display&display=swap" rel="stylesheet"/>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -46,7 +46,6 @@
       overflow-x: hidden;
     }
 
-    /* ── Fondo animado ── */
     .bg-orb {
       position: fixed;
       border-radius: 50%;
@@ -59,7 +58,6 @@
       width: 500px; height: 500px;
       background: radial-gradient(circle, rgba(255,45,45,0.12) 0%, transparent 70%);
       top: -150px; left: -150px;
-      animation-delay: 0s;
     }
     .bg-orb-2 {
       width: 400px; height: 400px;
@@ -73,12 +71,11 @@
       66%     { transform: translate(-20px,15px) scale(.97); }
     }
 
-    /* ── Wrapper ── */
     .wrapper {
       position: relative;
       z-index: 1;
       width: 100%;
-      max-width: 480px;
+      max-width: 520px;
       animation: wrapIn .7s cubic-bezier(.16,1,.3,1) both;
     }
     @keyframes wrapIn {
@@ -86,7 +83,6 @@
       to   { opacity: 1; transform: translateY(0); }
     }
 
-    /* ── Logo pill ── */
     .logo-pill {
       display: inline-flex;
       align-items: center;
@@ -109,14 +105,8 @@
       0%,100% { box-shadow: 0 0 6px var(--red); transform: scale(1); }
       50%     { box-shadow: 0 0 16px var(--red); transform: scale(1.15); }
     }
-    .logo-pill span {
-      font-size: 12px;
-      font-weight: 500;
-      color: rgba(255,45,45,0.8);
-      letter-spacing: .04em;
-    }
+    .logo-pill span { font-size: 12px; font-weight: 500; color: rgba(255,45,45,0.8); letter-spacing: .04em; }
 
-    /* ── Título ── */
     .title {
       font-family: 'DM Serif Display', serif;
       font-size: 42px;
@@ -141,7 +131,6 @@
       animation: fadeUp .5s .2s both;
     }
 
-    /* ── Card ── */
     .card {
       background: var(--surface);
       border: 1px solid var(--border);
@@ -150,11 +139,8 @@
       animation: fadeUp .5s .25s both;
       transition: border-color .3s;
     }
-    .card:focus-within {
-      border-color: var(--border-hover);
-    }
+    .card:focus-within { border-color: var(--border-hover); }
 
-    /* ── Input URL ── */
     .field { margin-bottom: 20px; }
     .field-label {
       font-size: 11px;
@@ -178,12 +164,7 @@
       border-color: rgba(255,45,45,0.4);
       box-shadow: 0 0 0 3px rgba(255,45,45,0.08);
     }
-    .input-row svg {
-      flex-shrink: 0;
-      margin-left: 14px;
-      color: var(--muted2);
-      transition: color .2s;
-    }
+    .input-row svg { flex-shrink:0; margin-left:14px; color:var(--muted2); transition:color .2s; }
     .input-row:focus-within svg { color: var(--red-soft); }
     .input-row input {
       flex: 1;
@@ -197,7 +178,6 @@
     }
     .input-row input::placeholder { color: var(--muted2); }
 
-    /* ── Paste button ── */
     .paste-btn {
       margin-right: 8px;
       padding: 6px 12px;
@@ -213,9 +193,32 @@
       transition: all .2s;
     }
     .paste-btn:hover { color: var(--text); border-color: var(--border-hover); }
-    .paste-btn:active { transform: scale(.95); }
 
-    /* ── Formatos ── */
+    /* ── Sección categorías ── */
+    .cat-tabs {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 12px;
+    }
+    .cat-tab {
+      padding: 6px 14px;
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: 99px;
+      color: var(--muted);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all .2s;
+    }
+    .cat-tab:hover { border-color: var(--border-hover); color: var(--text); }
+    .cat-tab.on {
+      border-color: rgba(255,45,45,0.5);
+      color: var(--red-soft);
+      background: rgba(255,45,45,0.06);
+    }
+
     .formats-label {
       font-size: 11px;
       font-weight: 500;
@@ -225,12 +228,15 @@
       margin-bottom: 10px;
       display: block;
     }
+
     .formats {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       gap: 8px;
       margin-bottom: 20px;
     }
+    .formats.cols-2 { grid-template-columns: repeat(2, 1fr); }
+
     .fmt {
       padding: 14px 8px;
       background: var(--surface2);
@@ -245,7 +251,7 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 6px;
+      gap: 5px;
       position: relative;
       overflow: hidden;
     }
@@ -266,16 +272,24 @@
       box-shadow: 0 4px 20px rgba(255,45,45,0.12);
     }
     .fmt.on::after { opacity: 1; }
-    .fmt-icon { font-size: 20px; }
-    .fmt-ext {
-      font-size: 11px;
-      font-weight: 600;
-      letter-spacing: .06em;
-    }
-    .fmt-desc { font-size: 10px; color: var(--muted); }
+    .fmt-icon { font-size: 18px; }
+    .fmt-ext { font-size: 12px; font-weight: 600; letter-spacing: .06em; }
+    .fmt-desc { font-size: 10px; color: var(--muted); text-align: center; line-height: 1.3; }
     .fmt.on .fmt-desc { color: rgba(255,90,90,0.7); }
 
-    /* ── Botón principal ── */
+    /* Badge DJ */
+    .fmt-badge {
+      position: absolute;
+      top: 6px; right: 6px;
+      font-size: 8px;
+      font-weight: 700;
+      padding: 2px 5px;
+      border-radius: 4px;
+      background: rgba(255,45,45,0.2);
+      color: var(--red-soft);
+      letter-spacing: .04em;
+    }
+
     #btn {
       width: 100%;
       padding: 15px;
@@ -290,143 +304,42 @@
       position: relative;
       overflow: hidden;
       transition: transform .15s, box-shadow .2s, background .2s;
-      letter-spacing: .01em;
     }
     #btn::before {
       content: '';
       position: absolute;
       top: 0; left: -100%;
-      width: 60%;
-      height: 100%;
+      width: 60%; height: 100%;
       background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
       transform: skewX(-20deg);
       transition: left .5s;
     }
-    #btn:hover {
-      background: var(--red-soft);
-      box-shadow: 0 8px 30px rgba(255,45,45,0.35);
-      transform: translateY(-1px);
-    }
+    #btn:hover { background: var(--red-soft); box-shadow: 0 8px 30px rgba(255,45,45,0.35); transform: translateY(-1px); }
     #btn:hover::before { left: 150%; }
     #btn:active { transform: translateY(0) scale(.99); box-shadow: none; }
-    #btn:disabled {
-      background: var(--surface2);
-      color: var(--muted);
-      box-shadow: none;
-      transform: none;
-      cursor: not-allowed;
-    }
-    #btn:disabled::before { display: none; }
+    #btn:disabled { background: var(--surface2); color: var(--muted); box-shadow: none; transform: none; cursor: not-allowed; }
+    .btn-inner { display:flex; align-items:center; justify-content:center; gap:10px; }
 
-    .btn-inner {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-    }
-
-    /* ── Spinner ── */
-    .spinner {
-      width: 16px; height: 16px;
-      border: 2px solid rgba(255,255,255,0.3);
-      border-top-color: #fff;
-      border-radius: 50%;
-      animation: spin .7s linear infinite;
-      display: none;
-    }
+    .spinner { width:16px; height:16px; border:2px solid rgba(255,255,255,0.3); border-top-color:#fff; border-radius:50%; animation:spin .7s linear infinite; display:none; }
     @keyframes spin { to { transform: rotate(360deg); } }
     .spinning .spinner { display: block; }
     .spinning .btn-arrow { display: none; }
 
-    /* ── Progress ── */
-    .progress-wrap {
-      margin-top: 16px;
-      display: none;
-      animation: fadeUp .3s both;
-    }
-    .progress-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 8px;
-    }
-    .progress-status {
-      font-size: 12px;
-      color: var(--muted);
-      font-weight: 500;
-    }
-    .progress-pct {
-      font-size: 12px;
-      color: var(--muted);
-      font-variant-numeric: tabular-nums;
-    }
-    .progress-track {
-      height: 4px;
-      background: var(--surface2);
-      border-radius: 99px;
-      overflow: hidden;
-    }
-    .progress-fill {
-      height: 100%;
-      background: linear-gradient(90deg, var(--red), var(--red-soft));
-      border-radius: 99px;
-      width: 0;
-      transition: width .4s ease;
-      position: relative;
-    }
-    .progress-fill::after {
-      content: '';
-      position: absolute;
-      right: 0; top: 50%;
-      transform: translateY(-50%);
-      width: 8px; height: 8px;
-      border-radius: 50%;
-      background: #fff;
-      box-shadow: 0 0 8px rgba(255,45,45,0.8);
-      opacity: 0;
-      transition: opacity .3s;
-    }
-    .progress-fill.active::after { opacity: 1; }
+    .progress-wrap { margin-top:16px; display:none; animation:fadeUp .3s both; }
+    .progress-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; }
+    .progress-status { font-size:12px; color:var(--muted); font-weight:500; }
+    .progress-pct { font-size:12px; color:var(--muted); font-variant-numeric:tabular-nums; }
+    .progress-track { height:4px; background:var(--surface2); border-radius:99px; overflow:hidden; }
+    .progress-fill { height:100%; background:linear-gradient(90deg,var(--red),var(--red-soft)); border-radius:99px; width:0; transition:width .4s ease; position:relative; }
+    .progress-fill::after { content:''; position:absolute; right:0; top:50%; transform:translateY(-50%); width:8px; height:8px; border-radius:50%; background:#fff; box-shadow:0 0 8px rgba(255,45,45,0.8); opacity:0; transition:opacity .3s; }
+    .progress-fill.active::after { opacity:1; }
 
-    /* ── Mensaje resultado ── */
-    .result {
-      margin-top: 16px;
-      padding: 16px;
-      border-radius: 12px;
-      font-size: 14px;
-      display: none;
-      animation: resultIn .4s cubic-bezier(.34,1.56,.64,1) both;
-    }
-    @keyframes resultIn {
-      from { opacity: 0; transform: scale(.95) translateY(8px); }
-      to   { opacity: 1; transform: scale(1) translateY(0); }
-    }
-    .result.info {
-      display: block;
-      background: rgba(255,255,255,0.04);
-      border: 1px solid var(--border);
-      color: var(--muted);
-    }
-    .result.ok {
-      display: block;
-      background: rgba(29,185,84,0.08);
-      border: 1px solid rgba(29,185,84,0.2);
-      color: #b3f0c8;
-    }
-    .result.err {
-      display: block;
-      background: rgba(255,45,45,0.06);
-      border: 1px solid rgba(255,45,45,0.2);
-      color: #ffaaaa;
-    }
-    .result-title {
-      font-size: 12px;
-      font-weight: 600;
-      letter-spacing: .06em;
-      text-transform: uppercase;
-      margin-bottom: 4px;
-      opacity: .7;
-    }
+    .result { margin-top:16px; padding:16px; border-radius:12px; font-size:14px; display:none; animation:resultIn .4s cubic-bezier(.34,1.56,.64,1) both; }
+    @keyframes resultIn { from{opacity:0;transform:scale(.95) translateY(8px)} to{opacity:1;transform:scale(1) translateY(0)} }
+    .result.info { display:block; background:rgba(255,255,255,0.04); border:1px solid var(--border); color:var(--muted); }
+    .result.ok   { display:block; background:rgba(29,185,84,0.08); border:1px solid rgba(29,185,84,0.2); color:#b3f0c8; }
+    .result.err  { display:block; background:rgba(255,45,45,0.06); border:1px solid rgba(255,45,45,0.2); color:#ffaaaa; }
+    .result-title { font-size:12px; font-weight:600; letter-spacing:.06em; text-transform:uppercase; margin-bottom:4px; opacity:.7; }
 
     a.dl {
       display: inline-flex;
@@ -440,56 +353,34 @@
       text-decoration: none;
       font-size: 13px;
       font-weight: 600;
-      letter-spacing: .01em;
       transition: all .2s;
       box-shadow: 0 4px 16px rgba(29,185,84,0.3);
     }
-    a.dl:hover {
-      background: #22d460;
-      transform: translateY(-1px);
-      box-shadow: 0 6px 24px rgba(29,185,84,0.4);
-    }
-    a.dl:active { transform: none; }
+    a.dl:hover { background:#22d460; transform:translateY(-1px); box-shadow:0 6px 24px rgba(29,185,84,0.4); }
 
-    /* ── Divider ── */
-    .divider {
-      height: 1px;
-      background: var(--border);
-      margin: 28px 0;
-      position: relative;
+    /* Info DJ */
+    .dj-info {
+      margin-top: 16px;
+      padding: 12px 14px;
+      background: rgba(255,255,255,0.02);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.6;
       animation: fadeUp .5s .3s both;
     }
+    .dj-info strong { color: rgba(255,255,255,0.5); font-weight:500; }
 
-    /* ── Stats row ── */
-    .stats {
-      display: flex;
-      gap: 0;
-      animation: fadeUp .5s .35s both;
-    }
-    .stat {
-      flex: 1;
-      text-align: center;
-      padding: 0 16px;
-      border-right: 1px solid var(--border);
-    }
-    .stat:last-child { border-right: none; }
-    .stat-num {
-      font-size: 22px;
-      font-weight: 600;
-      color: var(--text);
-      display: block;
-      margin-bottom: 2px;
-    }
-    .stat-label {
-      font-size: 11px;
-      color: var(--muted);
-      font-weight: 400;
-    }
+    .divider { height:1px; background:var(--border); margin:28px 0; animation:fadeUp .5s .3s both; }
 
-    @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(14px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
+    .stats { display:flex; gap:0; animation:fadeUp .5s .35s both; }
+    .stat { flex:1; text-align:center; padding:0 16px; border-right:1px solid var(--border); }
+    .stat:last-child { border-right:none; }
+    .stat-num { font-size:18px; font-weight:600; color:var(--text); display:block; margin-bottom:2px; }
+    .stat-label { font-size:11px; color:var(--muted); font-weight:400; }
+
+    @keyframes fadeUp { from{opacity:0;transform:translateY(14px)} to{opacity:1;transform:translateY(0)} }
   </style>
 </head>
 <body>
@@ -505,7 +396,7 @@
   </div>
 
   <h1 class="title">Convierte cualquier<br>video de <em>YouTube</em></h1>
-  <p class="subtitle">Descarga en MP3, WAV o MP4 en segundos.<br>Sin registro, sin límites.</p>
+  <p class="subtitle">Descarga en MP3, WAV, FLAC, AAC, OGG o MP4.<br>Con portada y metadatos incluidos. Sin registro.</p>
 
   <div class="card">
 
@@ -517,30 +408,59 @@
           <path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/>
         </svg>
         <input id="url" type="text" placeholder="https://www.youtube.com/watch?v=..."/>
-        <button class="paste-btn" id="paste-btn">Pegar</button>
+        <button class="paste-btn" onclick="pasteUrl()">Pegar</button>
       </div>
     </div>
 
+    <!-- Tabs categoría -->
+    <div class="cat-tabs">
+      <button class="cat-tab on" onclick="switchCat('audio', this)">Audio</button>
+      <button class="cat-tab"    onclick="switchCat('video', this)">Video</button>
+    </div>
+
     <span class="formats-label">Formato</span>
-    <div class="formats">
+
+    <!-- Formatos audio -->
+    <div class="formats" id="fmt-audio">
       <button class="fmt on" data-f="mp3">
         <span class="fmt-icon">🎵</span>
         <span class="fmt-ext">MP3</span>
-        <span class="fmt-desc">Audio</span>
+        <span class="fmt-desc">320kbps VBR</span>
       </button>
       <button class="fmt" data-f="wav">
+        <span class="fmt-badge">DJ</span>
         <span class="fmt-icon">🎧</span>
         <span class="fmt-ext">WAV</span>
         <span class="fmt-desc">Sin pérdida</span>
       </button>
-      <button class="fmt" data-f="mp4">
+      <button class="fmt" data-f="flac">
+        <span class="fmt-badge">DJ</span>
+        <span class="fmt-icon">💿</span>
+        <span class="fmt-ext">FLAC</span>
+        <span class="fmt-desc">Lossless comprimido</span>
+      </button>
+      <button class="fmt" data-f="aac">
+        <span class="fmt-icon">🔊</span>
+        <span class="fmt-ext">AAC</span>
+        <span class="fmt-desc">Alta eficiencia</span>
+      </button>
+      <button class="fmt" data-f="ogg">
+        <span class="fmt-icon">🎼</span>
+        <span class="fmt-ext">OGG</span>
+        <span class="fmt-desc">Vorbis open source</span>
+      </button>
+    </div>
+
+    <!-- Formatos video -->
+    <div class="formats cols-2" id="fmt-video" style="display:none">
+      <button class="fmt on" data-f="mp4">
         <span class="fmt-icon">🎬</span>
         <span class="fmt-ext">MP4</span>
         <span class="fmt-desc">Video HD</span>
       </button>
     </div>
 
-    <button id="btn">
+    <button id="btn" onclick="convert()">
       <div class="btn-inner">
         <div class="spinner"></div>
         <svg class="btn-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -562,43 +482,64 @@
 
     <div class="result" id="result"></div>
 
+    <div class="dj-info">
+      <strong>Incluido en cada descarga:</strong> título del video, portada como carátula y metadatos compatibles con Serato, Rekordbox, Traktor y VirtualDJ.
+    </div>
+
   </div>
 
   <div class="divider"></div>
 
   <div class="stats">
     <div class="stat">
-      <span class="stat-num">MP3</span>
-      <span class="stat-label">Audio comprimido</span>
+      <span class="stat-num">5</span>
+      <span class="stat-label">Formatos audio</span>
     </div>
     <div class="stat">
-      <span class="stat-num">WAV</span>
-      <span class="stat-label">Máxima calidad</span>
+      <span class="stat-num">HD</span>
+      <span class="stat-label">Calidad máxima</span>
     </div>
     <div class="stat">
-      <span class="stat-num">MP4</span>
-      <span class="stat-label">Video completo</span>
+      <span class="stat-num">0€</span>
+      <span class="stat-label">Sin registro</span>
     </div>
   </div>
 
 </div>
 
 <script>
-  async function pasteUrl() {
-    try {
-      const text = await navigator.clipboard.readText();
-      document.getElementById('url').value = text;
-    } catch { }
+  let fmt = 'mp3';
+  let cat = 'audio';
+
+  function switchCat(newCat, el) {
+    cat = newCat;
+    document.querySelectorAll('.cat-tab').forEach(t => t.classList.remove('on'));
+    el.classList.add('on');
+    document.getElementById('fmt-audio').style.display = newCat === 'audio' ? 'grid' : 'none';
+    document.getElementById('fmt-video').style.display = newCat === 'video' ? 'grid' : 'none';
+    // seleccionar primer formato de la categoría
+    const firstFmt = document.querySelector(`#fmt-${newCat} .fmt`);
+    if (firstFmt) {
+      document.querySelectorAll('.fmt').forEach(b => b.classList.remove('on'));
+      firstFmt.classList.add('on');
+      fmt = firstFmt.dataset.f;
+    }
   }
 
-  let fmt = 'mp3';
   document.querySelectorAll('.fmt').forEach(b => {
     b.onclick = () => {
-      document.querySelectorAll('.fmt').forEach(x => x.classList.remove('on'));
+      document.querySelectorAll(`#fmt-${cat} .fmt`).forEach(x => x.classList.remove('on'));
       b.classList.add('on');
       fmt = b.dataset.f;
     };
   });
+
+  async function pasteUrl() {
+    try {
+      const text = await navigator.clipboard.readText();
+      document.getElementById('url').value = text;
+    } catch {}
+  }
 
   function setResult(html, type) {
     const el = document.getElementById('result');
@@ -610,17 +551,15 @@
   function startProgress() {
     let p = 0;
     const fill = document.getElementById('progress-fill');
-    const pct  = document.getElementById('progress-pct');
     document.getElementById('progress-wrap').style.display = 'block';
     fill.classList.add('active');
-    const statuses = ['Conectando...','Descargando...','Convirtiendo...','Finalizando...'];
-    let si = 0;
+    const statuses = ['Conectando...', 'Descargando...', 'Convirtiendo...', 'Añadiendo metadatos...', 'Finalizando...'];
     timer = setInterval(() => {
-      p = p < 88 ? p + Math.random() * 4 : p;
+      p = p < 88 ? p + Math.random() * 3.5 : p;
       fill.style.width = p + '%';
-      pct.textContent = Math.round(p) + '%';
-      const idx = Math.floor((p / 88) * statuses.length);
-      document.getElementById('progress-status').textContent = statuses[Math.min(idx, statuses.length-1)];
+      document.getElementById('progress-pct').textContent = Math.round(p) + '%';
+      const idx = Math.min(Math.floor((p / 88) * statuses.length), statuses.length - 1);
+      document.getElementById('progress-status').textContent = statuses[idx];
     }, 500);
   }
 
@@ -664,7 +603,7 @@
       } else {
         setResult(`
           <div class="result-title">Listo</div>
-          Tu archivo está listo para descargar.
+          Archivo con portada y metadatos listo para descargar.
           <br>
           <a class="dl" href="/download/${data.id}/${data.format}">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
@@ -680,10 +619,6 @@
       btnText.textContent = 'Convertir ahora';
     }
   }
-
-  // Event Listeners (Solución al error CSP)
-  document.getElementById('paste-btn').addEventListener('click', pasteUrl);
-  document.getElementById('btn').addEventListener('click', convert);
 
   document.getElementById('url').addEventListener('keydown', e => {
     if (e.key === 'Enter') convert();
