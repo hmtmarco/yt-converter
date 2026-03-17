@@ -18,7 +18,7 @@ app.use(helmet({
     directives: {
       defaultSrc: ["'self'"],
       scriptSrc:  ["'self'", "'unsafe-inline'", "'unsafe-hashes'"],
-      scriptSrcAttr: ["'unsafe-inline'"], // <-- Corrección CSP
+      scriptSrcAttr: ["'unsafe-inline'"],
       styleSrc:   ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
       fontSrc:    ["'self'", 'https://fonts.gstatic.com'],
       imgSrc:     ["'self'", 'data:'],
@@ -112,8 +112,8 @@ app.post('/convert', (req, res) => {
     // Calidad de audio: sin parámetro de calidad para formatos sin pérdida (WAV, FLAC)
     const qualityMap = {
       mp3:  ['--audio-quality', '0'],
-      wav:  [], // <-- Corrección para formatos Lossless
-      flac: [], // <-- Corrección para formatos Lossless
+      wav:  [], 
+      flac: [], 
       aac:  ['--audio-quality', '0'],
       ogg:  ['--audio-quality', '0'],
     };
@@ -135,8 +135,10 @@ app.post('/convert', (req, res) => {
   execFile('yt-dlp', args, { timeout: 180_000 }, (err, stdout, stderr) => {
     if (err) {
       console.error('[yt-dlp error]', stderr);
+      // Enviamos el error real extraído de yt-dlp al cliente
+      const realError = stderr ? stderr.split('\n').find(line => line.includes('ERROR:')) || stderr.split('\n')[0] : 'Error desconocido';
       return res.status(500).json({
-        error: 'No se pudo convertir. El video puede estar bloqueado, ser privado o superar 20 minutos.'
+        error: `Detalle del error: ${realError.substring(0, 150)}...`
       });
     }
     res.json({ id, format });
