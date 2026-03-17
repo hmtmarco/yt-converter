@@ -18,7 +18,7 @@ app.use(helmet({
     directives: {
       defaultSrc: ["'self'"],
       scriptSrc:  ["'self'", "'unsafe-inline'", "'unsafe-hashes'"],
-      scriptSrcAttr: ["'unsafe-inline'"],
+      scriptSrcAttr: ["'unsafe-inline'"], // <-- Corrección CSP
       styleSrc:   ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
       fontSrc:    ["'self'", 'https://fonts.gstatic.com'],
       imgSrc:     ["'self'", 'data:'],
@@ -101,6 +101,10 @@ app.post('/convert', (req, res) => {
     args = [
       '-f', 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best',
       '--merge-output-format', 'mp4',
+      // 👇 Trucos Anti-Bot 👇
+      '--extractor-args', 'youtube:player_client=web_safari,ios,android_vr',
+      '--impersonate', 'Chrome-131',
+      // 👆 Trucos Anti-Bot 👆
       '--match-filter', 'duration < 1200',
       '--no-playlist',
       '--embed-thumbnail',
@@ -122,6 +126,10 @@ app.post('/convert', (req, res) => {
       '-x',
       '--audio-format', format,
       ...qualityMap[format],
+      // 👇 Trucos Anti-Bot 👇
+      '--extractor-args', 'youtube:player_client=web_safari,ios,android_vr',
+      '--impersonate', 'Chrome-131',
+      // 👆 Trucos Anti-Bot 👆
       '--match-filter', 'duration < 1200',
       '--no-playlist',
       '--embed-thumbnail',
@@ -158,4 +166,4 @@ app.get('/download/:id/:format', (req, res) => {
   res.download(file, `descarga.${format}`, () => fs.unlink(file, () => {}));
 });
 
-app.listen(PORT, () => console.log(`Servidor en http://localhost:${PORT}`));
+app.listen(PORT, () => console.log(`Servidor en http://localhost:${PORT}`));S
