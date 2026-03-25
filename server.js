@@ -16,9 +16,7 @@ if (!fs.existsSync(TMP)) fs.mkdirSync(TMP);
 // Helmet sin CSP para evitar bloqueos de JS inline
 app.use(helmet({ contentSecurityPolicy: false }));
 
-app.use(cors({
-  origin: ['https://ytsnap.up.railway.app', 'https://yt-converter-production-2ca3.up.railway.app']
-}));
+app.use(cors());
 
 app.use(express.json({ limit: '10kb' }));
 app.use(express.static('public'));
