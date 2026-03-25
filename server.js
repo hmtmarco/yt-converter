@@ -13,19 +13,8 @@ const TMP  = path.join(__dirname, 'tmp');
 
 if (!fs.existsSync(TMP)) fs.mkdirSync(TMP);
 
-app.use(helmet({
-  contentSecurityPolicy: {
-    directives: {
-      defaultSrc: ["'self'"],
-      scriptSrc:  ["'self'", "'unsafe-inline'", "'unsafe-hashes'"],
-      scriptSrcAttr: ["'unsafe-inline'"], // <-- Corrección CSP
-      styleSrc:   ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
-      fontSrc:    ["'self'", 'https://fonts.gstatic.com'],
-      imgSrc:     ["'self'", 'data:'],
-      connectSrc: ["'self'"]
-    }
-  }
-}));
+// Helmet sin CSP para evitar bloqueos de JS inline
+app.use(helmet({ contentSecurityPolicy: false }));
 
 app.use(cors({
   origin: ['https://ytsnap.up.railway.app', 'https://yt-converter-production-2ca3.up.railway.app']
@@ -64,7 +53,6 @@ function isValidYoutubeUrl(url) {
   } catch { return false; }
 }
 
-// Limpiar la URL y dejar solo la ID del video para evitar problemas con parámetros extra
 function cleanYoutubeUrl(rawUrl) {
   try {
     const u = new URL(rawUrl);
@@ -72,14 +60,32 @@ function cleanYoutubeUrl(rawUrl) {
     const videoId = u.searchParams.get('v');
     if (videoId) return `https://www.youtube.com/watch?v=${videoId}`;
     return rawUrl;
-  } catch {
-    return rawUrl;
-  }
+  } catch { return rawUrl; }
 }
 
 const AUDIO_FORMATS = ['mp3', 'wav', 'flac', 'aac', 'ogg'];
 const VIDEO_FORMATS = ['mp4'];
 const ALL_FORMATS   = [...AUDIO_FORMATS, ...VIDEO_FORMATS];
+
+// ── Parámetros ffmpeg optimizados por formato para software DJ ─────────────
+// Todos a 44100Hz estéreo — frecuencia estándar de Traktor, Serato, Rekordbox
+const DJ_FFMPEG_ARGS = {
+  mp3:  ['-ar', '44100', '-ac', '2', '-b:a', '320k', '-write_xing', '0'],
+  // CBR 320kbps — Traktor analiza mucho mejor CBR que VBR
+  // write_xing 0 = sin cabecera Xing, evita errores de duración en Traktor
+
+  wav:  ['-ar', '44100', '-ac', '2', '-acodec', 'pcm_s16le'],
+  // PCM 16-bit — formato nativo sin pérdida, análisis instantáneo en Traktor
+
+  flac: ['-ar', '44100', '-ac', '2', '-compression_level', '5'],
+  // FLAC nivel 5 — balance entre tamaño y velocidad de carga
+
+  aac:  ['-ar', '44100', '-ac', '2', '-b:a', '256k'],
+  // AAC 256kbps — buena calidad para uso general
+
+  ogg:  ['-ar', '44100', '-ac', '2', '-q:a', '10'],
+  // OGG calidad máxima (q10 ≈ 500kbps)
+};
 
 app.post('/convert', (req, res) => {
   const { url, format } = req.body;
@@ -101,10 +107,7 @@ app.post('/convert', (req, res) => {
     args = [
       '-f', 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best',
       '--merge-output-format', 'mp4',
-      // 👇 Trucos Anti-Bot 👇
-      '--extractor-args', 'youtube:player_client=web_safari,ios,android_vr',
-      '--impersonate', 'Chrome-131',
-      // 👆 Trucos Anti-Bot 👆
+      '--extractor-args', 'youtube:player_client=web_safari,ios',
       '--match-filter', 'duration < 1200',
       '--no-playlist',
       '--embed-thumbnail',
@@ -113,27 +116,19 @@ app.post('/convert', (req, res) => {
       cleanUrl
     ];
   } else {
-    // Calidad de audio: sin parámetro de calidad para formatos sin pérdida (WAV, FLAC)
-    const qualityMap = {
-      mp3:  ['--audio-quality', '0'],
-      wav:  [], 
-      flac: [], 
-      aac:  ['--audio-quality', '0'],
-      ogg:  ['--audio-quality', '0'],
-    };
+    // Parámetros ffmpeg DJ pasados directamente al postprocesador
+    const ffmpegArgs = DJ_FFMPEG_ARGS[format].join(' ');
 
     args = [
       '-x',
       '--audio-format', format,
-      ...qualityMap[format],
-      // 👇 Trucos Anti-Bot 👇
-      '--extractor-args', 'youtube:player_client=web_safari,ios,android_vr',
-      '--impersonate', 'Chrome-131',
-      // 👆 Trucos Anti-Bot 👆
+      '--audio-quality', '0',           // descarga la mejor calidad de origen
+      '--postprocessor-args', `ffmpeg:${ffmpegArgs}`,  // conversión DJ-ready
+      '--extractor-args', 'youtube:player_client=web_safari,ios',
       '--match-filter', 'duration < 1200',
       '--no-playlist',
-      '--embed-thumbnail',
-      '--add-metadata',
+      '--embed-thumbnail',               // portada del video como carátula
+      '--add-metadata',                  // título, artista desde YouTube
       '--parse-metadata', 'title:%(title)s',
       '-o', outFile,
       cleanUrl
@@ -143,11 +138,9 @@ app.post('/convert', (req, res) => {
   execFile('yt-dlp', args, { timeout: 180_000 }, (err, stdout, stderr) => {
     if (err) {
       console.error('[yt-dlp error]', stderr);
-      // Enviamos el error real extraído de yt-dlp al cliente
-      const realError = stderr ? stderr.split('\n').find(line => line.includes('ERROR:')) || stderr.split('\n')[0] : 'Error desconocido';
-      return res.status(500).json({
-        error: `Detalle del error: ${realError.substring(0, 150)}...`
-      });
+      const lines = (stderr || '').split('\n');
+      const errorLine = lines.find(l => l.includes('ERROR:')) || lines[0] || 'Error desconocido';
+      return res.status(500).json({ error: errorLine.substring(0, 200) });
     }
     res.json({ id, format });
   });
